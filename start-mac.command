@@ -13,9 +13,15 @@ echo "Node $(node -v)"
 bold "2/5 Checking MongoDB"
 if nc -z 127.0.0.1 27017 2>/dev/null; then echo "MongoDB is already running on 127.0.0.1:27017"
 elif command -v brew >/dev/null; then
-  if ! brew list mongodb-community >/dev/null 2>&1; then echo "Installing MongoDB Community Server with Homebrew (first time only)..."; brew tap mongodb/brew && brew install mongodb-community; fi
+  if ! brew list mongodb-community >/dev/null 2>&1; then
+    echo "Installing MongoDB Community Server with Homebrew (first time only, a few minutes)..."
+    brew tap mongodb/brew
+    # Newer Homebrew only installs from third-party taps you have trusted.
+    brew trust mongodb/brew >/dev/null 2>&1 || brew trust --formula mongodb/brew/mongodb-community >/dev/null 2>&1 || true
+    HOMEBREW_NO_AUTO_UPDATE=1 brew install mongodb/brew/mongodb-community
+  fi
   brew services start mongodb-community
-  for i in $(seq 1 20); do nc -z 127.0.0.1 27017 2>/dev/null && break; sleep 1; done
+  for i in $(seq 1 30); do nc -z 127.0.0.1 27017 2>/dev/null && break; sleep 1; done
   nc -z 127.0.0.1 27017 2>/dev/null && echo "MongoDB started" || echo "MongoDB did not start. Check: brew services list"
 else
   echo "MongoDB is not running and Homebrew is not installed."
@@ -31,12 +37,17 @@ if [ ! -f server/.env ]; then
 else echo "server/.env already exists"; fi
 
 bold "4/5 Installing dependencies (first run takes a minute)"
-[ -d server/node_modules ] || npm --prefix server install --no-audit --no-fund
-[ -d client/node_modules ] || npm --prefix client install --no-audit --no-fund
+# npm ci installs exactly what package-lock.json lists and never rewrites it.
+[ -d server/node_modules ] || npm --prefix server ci --no-audit --no-fund
+[ -d client/node_modules ] || npm --prefix client ci --no-audit --no-fund
 
 bold "5/5 Starting the API and the React app"
+# Stop a copy left running by an earlier start.
+for port in 5050 3016; do pids=$(lsof -ti tcp:$port 2>/dev/null); [ -n "$pids" ] && kill $pids 2>/dev/null; done
+sleep 1
 mkdir -p .logs
-npm --prefix server run dev > .logs/server.log 2>&1 & API=$!
+# The API runs without --watch: synced folders (iCloud Documents) touch files and would restart it constantly.
+npm --prefix server start > .logs/server.log 2>&1 & API=$!
 npm --prefix client run dev > .logs/client.log 2>&1 & WEB=$!
 trap 'echo; echo "Stopping..."; kill $API $WEB 2>/dev/null; exit 0' INT TERM
 for i in $(seq 1 60); do nc -z 127.0.0.1 3016 2>/dev/null && nc -z 127.0.0.1 5050 2>/dev/null && break; sleep 1; done
