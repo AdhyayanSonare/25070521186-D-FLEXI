@@ -6,6 +6,7 @@ import {useAuth} from '../auth';
 import {useToast} from '../toast';
 import {loadAtlas,systemOf,titleCase} from '../catalog';
 import {ResearchSheet} from '../ResearchSheet';
+import {useCountUp} from '../useReveal';
 
 const fmtDate=(iso:string)=>new Date(iso).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
 function relative(iso:string){
@@ -18,7 +19,7 @@ export default function StudySpace(){
  const {user}=useAuth(),toast=useToast();
  const [saved,setSaved]=useState<Saved[]|null>(null),[notes,setNotes]=useState<Note[]|null>(null),[error,setError]=useState('');
  const [filter,setFilter]=useState<string|null>(null),[leaving,setLeaving]=useState<Set<string>>(new Set()),[research,setResearch]=useState<string|null>(null);
- const composer=useRef<HTMLTextAreaElement>(null);
+ const composer=useRef<HTMLTextAreaElement>(null),page=useRef<HTMLDivElement>(null);
  const [draft,setDraft]=useState({structureId:'',structureName:'',content:''});
 
  const load=()=>{setError('');Promise.all([api.saved(),api.notes()]).then(([s,n])=>{setSaved(s.items);setNotes(n.items);}).catch(e=>setError(e.message));};
@@ -41,9 +42,10 @@ export default function StudySpace(){
  };
  const startNote=(item:Saved)=>{setDraft(d=>({...d,structureId:item.structureId,structureName:item.name}));composer.current?.focus();composer.current?.scrollIntoView({behavior:'smooth',block:'center'});};
 
+ useCountUp(page,'.stat-num',[stats?.saved,stats?.notes,stats?.systems]);
  if(error&&!saved)return <div className="container"><div className="empty tall"><h1 className="display">Study Space could not load.</h1><p>{error}</p><button className="btn btn-dark" onClick={load}>Try again</button></div></div>;
 
- return <div className="container study">
+ return <div className="container study" ref={page}>
   <header className="page-head single"><div>
    <h1 className="display">Study Space</h1>
    <p className="lede">{user?`${user.displayName}, here`:'Here'} is everything you have saved from the atlas, with your notes beside it.</p>
@@ -51,7 +53,7 @@ export default function StudySpace(){
 
   <dl className="stats" aria-label="Your progress">
    {[['Saved structures',stats?.saved],['Notes',stats?.notes],['Systems covered',stats?`${stats.systems} of 15`:undefined],['Last activity',stats?(stats.last?relative(stats.last):'None yet'):undefined]].map(([k,v])=>
-    <div key={k as string}><dt>{k}</dt><dd>{v===undefined?<span className="skeleton-text"/>:v}</dd></div>)}
+    <div key={k as string}><dt>{k}</dt><dd>{v===undefined?<span className="skeleton-text"/>:typeof v==='number'?<span className="stat-num" data-value={v}>{v}</span>:v}</dd></div>)}
   </dl>
 
   <div className="study-grid">

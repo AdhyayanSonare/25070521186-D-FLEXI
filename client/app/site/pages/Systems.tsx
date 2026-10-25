@@ -1,4 +1,5 @@
-import {useMemo,useState} from 'react';
+import {useMemo,useRef,useState} from 'react';
+import {useReveal} from '../useReveal';
 import {Link} from 'react-router-dom';
 import {Search} from 'lucide-react';
 import {SYSTEMS,type Concept,type SystemId} from '../../anatomy';
@@ -10,6 +11,7 @@ const STARTERS=['skull','femur','sternum','patella','heart','brain','spinal cord
 export default function Systems(){
  const {atlas,error}=useCatalog();
  const [query,setQuery]=useState('');
+ const page=useRef<HTMLDivElement>(null);
  const counts=useMemo(()=>atlas?systemCounts(atlas):null,[atlas]);
  const starters=useMemo(()=>{
   const map={} as Record<SystemId,Concept[]>;
@@ -26,7 +28,8 @@ export default function Systems(){
  },[atlas]);
  const term=query.trim().toLowerCase();
  const shown=SYSTEMS.filter(s=>(!counts||counts[s.id]>0)&&(!term||s.name.toLowerCase().includes(term)||s.description.toLowerCase().includes(term)||(starters[s.id]??[]).some(c=>c.name.toLowerCase().includes(term))));
- return <div className="container">
+ useReveal(page,'.system-entry',[atlas,shown.length]);
+ return <div className="container" ref={page}>
   <header className="page-head">
    <div>
     <h1 className="display">Systems</h1>

@@ -1,4 +1,6 @@
+import {useRef} from 'react';
 import {Link} from 'react-router-dom';
+import {useReveal} from '../useReveal';
 const STACK=[
  ['Interface','React 19, TypeScript, Vite, React Router, Tailwind CSS'],
  ['3D viewer','Three.js, from the open-source Human Atlas project'],
@@ -8,7 +10,9 @@ const STACK=[
  ['Research','NCBI PubMed E-utilities, called from the server with caching and rate limits'],
 ];
 export default function About(){
- return <div className="container prose-page">
+ const page=useRef<HTMLDivElement>(null);
+ useReveal(page,'.about-grid section > *, .stack-card');
+ return <div className="container prose-page" ref={page}>
   <header className="page-head single"><div><h1 className="display">About this project</h1>
    <p className="lede">Human Atlas Learning Studio turns an open-source 3D anatomy viewer into a place to study. You can sign in, save structures, keep notes and look up research.</p></div></header>
   <div className="about-grid">

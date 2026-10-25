@@ -65,7 +65,7 @@ html:not(.atlas-mode),html:not(.atlas-mode) body{background:var(--paper)}
 .avatar{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--slate);color:#fff;font-size:13px;font-weight:600}
 
 /* ---------- Page frame ---------- */
-.page{flex:1;animation:page-in .38s var(--ease-out) both}
+.page{flex:1;animation:page-in .38s var(--ease-out) backwards}
 @keyframes page-in{from{opacity:0;transform:translateY(6px)}}
 .route-loading{min-height:50dvh;display:flex;align-items:center;justify-content:center;gap:10px;color:#5d6a74;font:14px var(--sans,system-ui)}
 html.atlas-mode .route-loading{min-height:100dvh}
@@ -129,8 +129,6 @@ html.atlas-mode .route-loading{min-height:100dvh}
 /* ---------- Auth ---------- */
 .auth{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1fr);min-height:calc(100dvh - 64px);max-width:1180px;margin-inline:auto;padding-inline:var(--gutter)}
 .auth-art{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px 0}
-.auth-art img{height:min(64dvh,600px);width:auto;animation:plate-in 1s var(--ease-out) both}
-.auth-art p{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--muted);text-align:center;max-width:24ch}
 .auth-panel{display:flex;align-items:center;justify-content:center;padding:40px 0}
 .auth-card{width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:40px clamp(22px,4vw,40px);box-shadow:0 1px 2px #1825360a,0 24px 60px -30px #18253630;animation:rise .55s var(--ease-out) both}
 .auth-card h1{font-size:40px}

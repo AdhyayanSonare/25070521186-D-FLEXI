@@ -4,6 +4,8 @@ import {Eye,EyeOff} from 'lucide-react';
 import {ApiError} from '../api';
 import {safeNext,useAuth} from '../auth';
 import {useToast} from '../toast';
+import {AnatomyPlate} from '../landing/AnatomyPlate';
+import '../landing/landing.css';
 
 const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 type Errors=Record<string,string>;
@@ -25,9 +27,8 @@ function Field({id,label,error,hint,...input}:{id:string;label:string;error?:str
 
 function AuthLayout({title,intro,children,footer}:{title:string;intro:string;children:React.ReactNode;footer:React.ReactNode}){
  return <div className="auth">
-  <aside className="auth-art" aria-hidden="true">
-   <img src="/studio/plate-body.webp" alt="" width={500} height={1080}/>
-   <p>“Know the structure before you learn its story.”</p>
+  <aside className="auth-art">
+   <AnatomyPlate href={q=>`/app/atlas${q}`} compact delay={.15}/>
   </aside>
   <section className="auth-panel">
    <div className="auth-card">
