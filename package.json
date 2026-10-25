@@ -1,0 +1,17 @@
+{
+  "name": "human-atlas-learning-studio-ca",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack anatomy study app: React + Three.js atlas, Express API, MongoDB persistence and PubMed research.",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "test": "npm --prefix server test",
+    "check": "npm --prefix client run check",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix client run build && npm --prefix server start"
+  },
+  "engines": { "node": ">=22.13.0" },
+  "license": "MIT"
+}
