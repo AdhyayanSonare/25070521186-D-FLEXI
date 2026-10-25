@@ -1,7 +1,7 @@
-import {useEffect,useState,type FormEvent} from 'react';
+import {useEffect,useRef,useState,type FormEvent} from 'react';
 import {Link,useNavigate,useSearchParams} from 'react-router-dom';
 import {Eye,EyeOff} from 'lucide-react';
-import {ApiError} from '../api';
+import {ApiError,api,type DemoAccount} from '../api';
 import {safeNext,useAuth} from '../auth';
 import {useToast} from '../toast';
 import {AnatomyPlate} from '../landing/AnatomyPlate';
@@ -43,7 +43,9 @@ function AuthLayout({title,intro,children,footer}:{title:string;intro:string;chi
 
 function useRedirectIfAuthed(){
  const {status}=useAuth(),nav=useNavigate(),[params]=useSearchParams();
- useEffect(()=>{if(status==='authed')nav(safeNext(params.get('next')),{replace:true});},[status]);
+ // Only redirect someone who arrives already signed in; sign-ins on this page navigate themselves.
+ const first=useRef(true);
+ useEffect(()=>{if(status==='loading'||!first.current)return;first.current=false;if(status==='authed')nav(safeNext(params.get('next')),{replace:true});},[status]);
  return safeNext(params.get('next'));
 }
 
@@ -55,6 +57,11 @@ function messageFor(e:unknown){
 export function LoginPage(){
  const {login}=useAuth(),toast=useToast(),nav=useNavigate(),next=useRedirectIfAuthed();
  const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[errors,setErrors]=useState<Errors>({}),[formError,setFormError]=useState(''),[busy,setBusy]=useState(false);
+ const [demo,setDemo]=useState<DemoAccount[]>([]);
+ useEffect(()=>{api.demo().then(r=>setDemo(r.accounts)).catch(()=>{});},[]);
+ // Fills the form only; signing in still goes through the normal form and server check.
+ const [filled,setFilled]=useState('');
+ const fillDemo=(a:DemoAccount)=>{setEmail(a.email);setPassword(a.password);setErrors({});setFormError('');setFilled(a.label);document.getElementById('password')?.focus();};
  const submit=async(e:FormEvent)=>{
   e.preventDefault();
   const v:Errors={};
@@ -63,7 +70,7 @@ export function LoginPage(){
   setErrors(v);setFormError('');
   if(Object.keys(v).length)return;
   setBusy(true);
-  try{await login(email.trim(),password);toast('Signed in.');nav(next,{replace:true});}
+  try{await login(email.trim(),password);toast('Signed in.');nav(filled==='Administrator'&&next==='/app/atlas'?'/app/admin':next,{replace:true});}
   catch(err){setFormError(messageFor(err));}
   finally{setBusy(false);}
  };
@@ -74,6 +81,13 @@ export function LoginPage(){
    <Field id="password" label="Password" type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} error={errors.password}/>
    <button type="submit" className="btn btn-dark btn-block" disabled={busy}>{busy?<><span className="spinner"/>Signing in…</>:'Sign in'}</button>
   </form>
+  {demo.length>0&&<div className="demo-box">
+   <p className="demo-title">Evaluation accounts</p>
+   <p className="demo-help">Choose one to fill in its details, then select Sign in.</p>
+   <div className="demo-list">{demo.map(a=><button key={a.email} type="button" className={`demo-account ${filled===a.label?'is-filled':''}`} onClick={()=>fillDemo(a)} disabled={busy}>
+    <span className={`demo-role ${a.role}`}>{a.label}</span><span className="demo-cred">{a.email}<small>{a.password}</small></span><span className="demo-go">{filled===a.label?'Filled':'Use'}</span>
+   </button>)}</div>
+  </div>}
  </AuthLayout>;
 }
 

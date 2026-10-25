@@ -2,7 +2,10 @@
 export class ApiError extends Error {
  constructor(public status:number,message:string,public details?:Record<string,unknown>){super(message);}
 }
-export interface User {id:string;displayName:string;email:string;createdAt:string}
+export interface User {id:string;displayName:string;email:string;role:'user'|'admin';createdAt:string}
+export interface DemoAccount {label:string;email:string;password:string;role:'user'|'admin'}
+export interface AdminStats {users:number;admins:number;saved:number;notes:number;notesThisWeek:number;usersThisWeek:number;topStructures:{structureId:string;name:string;system:string;count:number}[]}
+export interface AdminUser extends User {saved:number;notes:number}
 export interface Saved {id:string;structureId:string;name:string;system:string;pieces:number;createdAt:string}
 export interface Note {id:string;structureId:string;structureName:string;content:string;createdAt:string;updatedAt:string}
 export interface Article {pmid:string;title:string;journal:string;published:string;authors:string[];moreAuthors:number;url:string}
@@ -31,4 +34,10 @@ export const api={
  editNote:(id:string,content:string)=>request<{item:Note}>('PATCH',`/notes/${id}`,{content}),
  deleteNote:(id:string)=>request<{ok:true}>('DELETE',`/notes/${id}`),
  research:(term:string)=>request<Research>('GET',`/research?term=${encodeURIComponent(term)}`),
+ updateProfile:(displayName:string)=>request<{user:User}>('PATCH','/auth/me',{displayName}),
+ changePassword:(currentPassword:string,newPassword:string)=>request<{ok:true}>('POST','/auth/password',{currentPassword,newPassword}),
+ demo:()=>request<{enabled:boolean;accounts:DemoAccount[]}>('GET','/auth/demo'),
+ adminStats:()=>request<AdminStats>('GET','/admin/stats'),
+ adminUsers:()=>request<{items:AdminUser[]}>('GET','/admin/users'),
+ adminDeleteUser:(id:string)=>request<{ok:true;removedSaved:number;removedNotes:number}>('DELETE',`/admin/users/${id}`),
 };

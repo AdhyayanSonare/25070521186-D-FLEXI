@@ -11,7 +11,6 @@ export function useReveal(scope:RefObject<HTMLElement|null>,selector:string,deps
    gsap.set(items,{autoAlpha:0,y:28});
    ScrollTrigger.batch(items,{start:'top 92%',once:true,onEnter:batch=>gsap.to(batch,{autoAlpha:1,y:0,duration:.8,ease:'expo.out',stagger:.07,overwrite:true})});
   });
-  return()=>mm.revert();
  },{scope,dependencies:deps,revertOnUpdate:true});
 }
 
@@ -26,6 +25,5 @@ export function useCountUp(scope:RefObject<HTMLElement|null>,selector:string,dep
     gsap.to(o,{v:target,duration:1.4,ease:'power2.out',onUpdate:()=>{el.textContent=Math.round(o.v).toLocaleString('en-US');},scrollTrigger:{trigger:el,start:'top 95%',once:true}});
    });
   });
-  return()=>mm.revert();
  },{scope,dependencies:deps,revertOnUpdate:true});
 }

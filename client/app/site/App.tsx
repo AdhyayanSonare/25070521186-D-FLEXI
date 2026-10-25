@@ -1,6 +1,6 @@
 import {lazy,Suspense,useEffect} from 'react';
 import {Route,Routes,useLocation} from 'react-router-dom';
-import {AuthProvider,RequireAuth} from './auth';
+import {AuthProvider,RequireAdmin,RequireAuth} from './auth';
 import {ToastProvider} from './toast';
 import {Shell} from './Shell';
 import Landing from './pages/Landing';
@@ -12,8 +12,10 @@ import NotFound from './pages/NotFound';
 const AtlasRoute=lazy(()=>import('./pages/AtlasRoute'));
 const Systems=lazy(()=>import('./pages/Systems'));
 const StudySpace=lazy(()=>import('./pages/StudySpace'));
+const Admin=lazy(()=>import('./pages/Admin'));
+const Profile=lazy(()=>import('./pages/Profile'));
 
-const TITLES:Record<string,string>={'/':'Human Atlas Learning Studio','/login':'Sign in','/register':'Create account','/about':'About','/app/atlas':'Atlas','/app/systems':'Systems','/app/study-space':'Study Space'};
+const TITLES:Record<string,string>={'/':'Human Atlas Learning Studio','/login':'Sign in','/register':'Create account','/about':'About','/app/atlas':'Atlas','/app/systems':'Systems','/app/study-space':'Study Space','/app/admin':'Admin','/app/profile':'Profile'};
 
 function useDocumentTitle(){
  const {pathname}=useLocation();
@@ -33,6 +35,8 @@ export default function App(){
    <Route path="/about" element={<About/>}/>
    <Route path="/app/systems" element={<RequireAuth><Systems/></RequireAuth>}/>
    <Route path="/app/study-space" element={<RequireAuth><StudySpace/></RequireAuth>}/>
+   <Route path="/app/profile" element={<RequireAuth><Profile/></RequireAuth>}/>
+   <Route path="/app/admin" element={<RequireAuth><RequireAdmin><Admin/></RequireAdmin></RequireAuth>}/>
    <Route path="*" element={<NotFound/>}/>
   </Route>
  </Routes></Suspense></ToastProvider></AuthProvider>;

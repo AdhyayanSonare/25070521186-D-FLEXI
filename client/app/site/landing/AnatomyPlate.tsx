@@ -28,38 +28,40 @@ export function AnatomyPlate({href,compact=false,delay=.35}:Props){
   const bars=gsap.utils.toArray<HTMLElement>('.chip-progress',root.current);
   const callouts=root.current!.querySelector('.plate-callouts');
   const hidden='inset(0% 0% 100% 0%)',shown='inset(0% 0% 0% 0%)';
-  let current=0,busy=false,progress:gsap.core.Tween|null=null,inView=true;
+  let current=0,busy=false,progress:gsap.core.Tween|null=null,swap:gsap.core.Timeline|null=null,inView=true,alive=true;
   const mm=gsap.matchMedia();
   const motion=()=>window.matchMedia(MOTION_OK).matches;
 
   gsap.set(layers,{clipPath:hidden,zIndex:0});
   gsap.set(layers[0],{clipPath:shown,zIndex:1});
 
-  const runProgress=contextSafe!(()=>{
+  // Internal steps are plain functions; only real event handlers are contextSafe (nesting them recurses).
+  const runProgress=()=>{
+   if(!alive)return;
    progress?.kill();
    gsap.set(bars,{scaleX:0});
    if(!motion())return;
    const bar=bars[current];
    progress=gsap.to(bar??{p:0},{...(bar?{scaleX:1}:{p:1}),duration:DWELL,ease:'none',onComplete:()=>goTo((current+1)%layers.length)});
    if(!inView)progress.pause();
-  });
+  };
 
-  const goTo=contextSafe!((i:number)=>{
-   if(busy||i===current)return;
+  const goTo=(i:number)=>{
+   if(!alive||busy||i===current)return;
    const prev=layers[current],next=layers[i];
    progress?.kill();bars.forEach(b=>gsap.set(b,{scaleX:0}));
    setActive(i);
    if(!motion()){gsap.set(prev,{clipPath:hidden,zIndex:0});gsap.set(next,{clipPath:shown,zIndex:1});gsap.set(callouts,{autoAlpha:i===0?1:0});current=i;return;}
    busy=true;
    gsap.set(prev,{zIndex:1});gsap.set(next,{zIndex:2,clipPath:hidden});
-   const tl=gsap.timeline({onComplete:()=>{gsap.set(prev,{clipPath:hidden,zIndex:0});gsap.set(next,{zIndex:1});current=i;busy=false;runProgress();}});
+   const tl=swap=gsap.timeline({onComplete:()=>{gsap.set(prev,{clipPath:hidden,zIndex:0});gsap.set(next,{zIndex:1});current=i;busy=false;runProgress();}});
    if(callouts&&current===0)tl.to(callouts,{autoAlpha:0,duration:.25},0);
    tl.to(next,{clipPath:shown,duration:1.2,ease:'power2.inOut'},0)
      .fromTo(scan,{top:'0%',autoAlpha:1},{top:'100%',duration:1.2,ease:'power2.inOut'},0)
      .to(scan,{autoAlpha:0,duration:.25},'>-0.1');
    if(callouts&&i===0)tl.fromTo(callouts,{autoAlpha:0},{autoAlpha:1,duration:.4},'>-0.2');
-  });
-  api.current.goTo=goTo;
+  };
+  api.current.goTo=contextSafe!((i:number)=>goTo(i));
 
   // Only animate while the figure is on screen.
   ScrollTrigger.create({trigger:root.current,start:'top bottom',end:'bottom top',onToggle:self=>{inView=self.isActive;if(progress)inView?progress.resume():progress.pause();}});
@@ -87,7 +89,7 @@ export function AnatomyPlate({href,compact=false,delay=.35}:Props){
   const enter=contextSafe!((e:PointerEvent)=>{if(e.pointerType!=='mouse')return;const r=el.getBoundingClientRect();gsap.set(el,{'--mx':e.clientX-r.left,'--my':e.clientY-r.top});gsap.to(el,{'--lr':Math.min(92,r.width*.24),duration:.45,ease:'back.out(1.6)'});progress?.pause();});
   const leave=contextSafe!(()=>{gsap.to(el,{'--lr':0,duration:.3,ease:'power2.in'});if(inView)progress?.resume();});
   el.addEventListener('pointermove',move);el.addEventListener('pointerenter',enter);el.addEventListener('pointerleave',leave);
-  return()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerenter',enter);el.removeEventListener('pointerleave',leave);mm.revert();};
+  return()=>{el.removeEventListener('pointermove',move);el.removeEventListener('pointerenter',enter);el.removeEventListener('pointerleave',leave);alive=false;progress?.kill();swap?.kill();api.current.goTo=()=>{};};
  },{scope:root});
 
  const lensSrc=active===1?LAYERS[0].src:LAYERS[1].src;

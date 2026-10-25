@@ -103,7 +103,6 @@ export default function Landing(){
    return()=>{hero.removeEventListener('pointermove',onMove);offs.forEach(f=>f());marquee.removeEventListener('pointerenter',slow);marquee.removeEventListener('pointerleave',fast);};
   });
   mm.add(REDUCED,()=>{});
-  return()=>mm.revert();
  },{scope:root,dependencies:[authed],revertOnUpdate:true});
 
  const Row=({list}:{list:typeof SYSTEMS})=><>{[0,1].map(copy=><ul key={copy} className="marquee-set" aria-hidden={copy===1}>{list.map(s=><li key={s.id}>

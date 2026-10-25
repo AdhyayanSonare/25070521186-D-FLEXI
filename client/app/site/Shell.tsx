@@ -13,14 +13,14 @@ export function Shell(){
  const [busy,setBusy]=useState(false);
  const authPage=loc.pathname==='/login'||loc.pathname==='/register';
  const signOut=async()=>{setBusy(true);try{await logout();toast('Signed out.','info');nav('/');}finally{setBusy(false);}};
- const links=user?[['/app/atlas','Atlas'],['/app/systems','Systems'],['/app/study-space','Study Space'],['/about','About']]:[['/about','About']];
+ const links=user?[['/app/atlas','Atlas'],['/app/systems','Systems'],['/app/study-space','Study Space'],...(user.role==='admin'?[['/app/admin','Admin']]:[]),['/about','About']]:[['/about','About']];
  return <div className="site">
   <a className="skip-link" href="#main">Skip to content</a>
   <header className="topbar">
    <Link to="/" className="brand" aria-label="Human Atlas Learning Studio, home"><Mark/><span>Human Atlas<small>Learning Studio</small></span></Link>
    <nav className="topnav" aria-label="Main">{links.map(([to,label])=><NavLink key={to} to={to}>{label}</NavLink>)}</nav>
    <div className="topbar-end">
-    {status==='authed'&&user?<><span className="who" title={user.email}><span className="avatar" aria-hidden="true">{user.displayName.slice(0,1).toUpperCase()}</span><span className="who-name">{user.displayName}</span></span><button type="button" className="btn btn-quiet" onClick={signOut} disabled={busy}>Sign out</button></>
+    {status==='authed'&&user?<><Link to="/app/profile" className="who" title={`${user.email}: open your profile`}><span className="avatar" aria-hidden="true">{user.displayName.slice(0,1).toUpperCase()}</span><span className="who-name">{user.displayName}</span>{user.role==='admin'&&<span className="role-badge">Admin</span>}</Link><button type="button" className="btn btn-quiet" onClick={signOut} disabled={busy}>Sign out</button></>
     :status==='anon'&&!authPage?<><Link to="/login" className="btn btn-quiet">Sign in</Link><Link to="/register" className="btn btn-dark">Create account</Link></>:null}
    </div>
   </header>
