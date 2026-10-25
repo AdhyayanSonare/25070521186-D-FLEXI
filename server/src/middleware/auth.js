@@ -34,3 +34,9 @@ export async function requireAuth(req, _res, next) {
   req.user = user;
   next();
 }
+
+/** Use after requireAuth. Only accounts with role "admin" pass. */
+export function requireAdmin(req, _res, next) {
+  if (req.user?.role !== 'admin') return next(new HttpError(403, 'This area is for administrators only.'));
+  next();
+}

@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 
 process.env.MONGODB_DB = `has_test_${Date.now()}`;
 process.env.JWT_SECRET = 'test-secret-only-for-automated-tests-0123456789';
+process.env.AUTH_RATE_LIMIT = '1000';
 const { connectDatabase } = await import('../src/db.js');
 const { createApp } = await import('../src/app.js');
 const { setFetch, clearResearchCache } = await import('../src/services/pubmed.js');
@@ -158,4 +159,52 @@ test('research parses PubMed responses, caches them and fails gracefully', async
   setFetch(async () => new Response('slow down', { status: 429 }));
   assert.equal((await alice('GET', '/research?term=spleen')).status, 503);
   assert.equal((await alice('GET', '/research?term=a')).status, 400);
+});
+
+test('demo accounts are seeded and can sign in', async () => {
+  const demoStudent = client();
+  const r = await demoStudent('POST', '/auth/login', { email: 'riya.sharma@humanatlas.test', password: 'Student@Atlas2026' });
+  assert.equal(r.status, 200);
+  assert.equal(r.body.user.role, 'user');
+  assert.equal((await demoStudent('GET', '/saved-structures')).body.items.length, 5);
+  assert.ok((await demoStudent('GET', '/notes')).body.items.length >= 1);
+  const demo = await demoStudent('GET', '/auth/demo');
+  assert.equal(demo.body.enabled, true);
+  assert.equal(demo.body.accounts.length, 2);
+});
+
+test('admin routes are limited to administrators', async () => {
+  assert.equal((await alice('GET', '/admin/stats')).status, 403);
+  assert.equal((await alice('GET', '/admin/users')).status, 403);
+  const admin = client();
+  const login = await admin('POST', '/auth/login', { email: 'admin@humanatlas.test', password: 'Admin@Atlas2026' });
+  assert.equal(login.body.user.role, 'admin');
+  const stats = await admin('GET', '/admin/stats');
+  assert.equal(stats.status, 200);
+  assert.ok(stats.body.users >= 4);
+  assert.ok(stats.body.topStructures.length >= 1);
+  const users = await admin('GET', '/admin/users');
+  const bobRow = users.body.items.find((u) => u.email === 'bob@example.com');
+  assert.equal(bobRow.saved, 1);
+  assert.equal(users.body.items.some((u) => 'passwordHash' in u), false);
+  // An admin cannot delete themselves, but can delete another account along with its data.
+  assert.equal((await admin('DELETE', `/admin/users/${login.body.user.id}`)).status, 400);
+  const del = await admin('DELETE', `/admin/users/${bobRow.id}`);
+  assert.equal(del.status, 200);
+  assert.equal(del.body.removedSaved, 1);
+  assert.equal((await bob('GET', '/auth/me')).status, 401);
+});
+
+test('profile: rename and change password with the current password', async () => {
+  const carol = client();
+  await carol('POST', '/auth/register', { displayName: 'Carol', email: 'carol@example.com', password: 'cranium123' });
+  assert.equal((await carol('PATCH', '/auth/me', { displayName: 'C' })).status, 400);
+  assert.equal((await carol('PATCH', '/auth/me', { displayName: 'Carol Mendes' })).body.user.displayName, 'Carol Mendes');
+  assert.equal((await carol('POST', '/auth/password', { currentPassword: 'wrong-one1', newPassword: 'femur4567' })).status, 400);
+  assert.equal((await carol('POST', '/auth/password', { currentPassword: 'cranium123', newPassword: 'short' })).status, 400);
+  assert.equal((await carol('POST', '/auth/password', { currentPassword: 'cranium123', newPassword: 'femur4567' })).status, 200);
+  const fresh = client();
+  assert.equal((await fresh('POST', '/auth/login', { email: 'carol@example.com', password: 'cranium123' })).status, 401);
+  assert.equal((await fresh('POST', '/auth/login', { email: 'carol@example.com', password: 'femur4567' })).status, 200);
+  assert.equal((await client()('PATCH', '/auth/me', { displayName: 'Anon' })).status, 401);
 });

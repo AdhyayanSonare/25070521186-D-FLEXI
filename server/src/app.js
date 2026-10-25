@@ -10,6 +10,7 @@ import authRoutes from './routes/auth.js';
 import savedRoutes from './routes/savedStructures.js';
 import noteRoutes from './routes/notes.js';
 import researchRoutes from './routes/research.js';
+import adminRoutes from './routes/admin.js';
 
 export function createApp() {
   const app = express();
@@ -44,6 +45,7 @@ export function createApp() {
   app.use('/api/saved-structures', savedRoutes);
   app.use('/api/notes', noteRoutes);
   app.use('/api/research', researchRoutes);
+  app.use('/api/admin', adminRoutes);
   app.use('/api', notFound);
 
   // Production: serve the built React app from client/dist with an SPA fallback.

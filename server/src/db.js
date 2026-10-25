@@ -10,6 +10,11 @@ export async function connectDatabase() {
   await mongoose.connect(config.mongoUri, { dbName: config.mongoDb, serverSelectionTimeoutMS: 5000 });
   // Make sure unique indexes (email, user+structure) exist before accepting writes.
   await Promise.all(Object.values(mongoose.models).map((m) => m.syncIndexes()));
+  if (config.seedDemo) {
+    const { ensureDemoAccounts } = await import('./seed.js');
+    const created = await ensureDemoAccounts();
+    if (created.length) console.log(`[db] created demo accounts: ${created.join(', ')}`);
+  }
 }
 
 export function databaseStatus() {

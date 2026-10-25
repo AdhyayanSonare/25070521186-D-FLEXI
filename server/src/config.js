@@ -11,6 +11,8 @@ export const config = {
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:3016',
   ncbiApiKey: process.env.NCBI_API_KEY || '',
   ncbiEmail: process.env.NCBI_EMAIL || '',
+  // Creates the demo student and admin accounts on start. Turn off for any public deployment.
+  seedDemo: (process.env.SEED_DEMO_ACCOUNTS ?? 'true').toLowerCase() !== 'false',
 };
 
 if (!config.jwtSecret || config.jwtSecret === 'replace-with-a-long-random-string') {

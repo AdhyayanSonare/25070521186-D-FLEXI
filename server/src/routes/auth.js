@@ -5,9 +5,11 @@ import { HttpError } from '../middleware/errors.js';
 import { EMAIL_RE, str } from '../middleware/validate.js';
 import { clearSession, issueSession, requireAuth } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rateLimit.js';
+import { config } from '../config.js';
+import { DEMO_ACCOUNTS } from '../seed.js';
 
 const router = Router();
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: 'Too many attempts. Wait a few minutes and try again.' });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: Number(process.env.AUTH_RATE_LIMIT) || 20, message: 'Too many attempts. Wait a few minutes and try again.' });
 // Used to keep login timing similar whether or not the email exists.
 const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', 12);
 
@@ -55,8 +57,38 @@ router.post('/logout', (_req, res) => {
   res.json({ ok: true });
 });
 
+// Lets the sign-in page offer one-click demo logins, only while demo accounts are enabled.
+router.get('/demo', (_req, res) => {
+  res.json({ enabled: config.seedDemo, accounts: config.seedDemo ? DEMO_ACCOUNTS.map(({ label, email, password, role }) => ({ label, email, password, role })) : [] });
+});
+
 router.get('/me', requireAuth, (req, res) => {
   res.json({ user: req.user.toPublic() });
+});
+
+// Profile: change the display name.
+router.patch('/me', requireAuth, async (req, res) => {
+  req.user.displayName = str(req.body?.displayName, { field: 'Display name', min: 2, max: 60 });
+  await req.user.save();
+  res.json({ user: req.user.toPublic() });
+});
+
+// Change password: requires the current password, then issues a fresh session.
+router.post('/password', requireAuth, authLimiter, async (req, res) => {
+  const current = typeof req.body?.currentPassword === 'string' ? req.body.currentPassword : '';
+  const next = typeof req.body?.newPassword === 'string' ? req.body.newPassword : '';
+  const user = await User.findById(req.user._id).select('+passwordHash');
+  if (!current || !(await bcrypt.compare(current, user.passwordHash))) {
+    throw new HttpError(400, 'Your current password is not correct.', { currentPassword: 'Incorrect password' });
+  }
+  if (next.length < 8 || next.length > 72 || !/[A-Za-z]/.test(next) || !/\d/.test(next)) {
+    throw new HttpError(400, 'Use 8–72 characters with at least one letter and one number.', { newPassword: 'Use 8–72 characters with a letter and a number' });
+  }
+  if (next === current) throw new HttpError(400, 'Choose a password different from the current one.', { newPassword: 'Must be different' });
+  user.passwordHash = await bcrypt.hash(next, 12);
+  await user.save();
+  issueSession(res, user);
+  res.json({ ok: true });
 });
 
 export default router;
