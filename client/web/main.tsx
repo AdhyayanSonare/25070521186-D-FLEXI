@@ -1,4 +1,11 @@
 import {createRoot} from 'react-dom/client';
-import Home from '../app/page';
+import {BrowserRouter} from 'react-router-dom';
+import App from '../app/site/App';
+import '@fontsource-variable/newsreader/opsz.css';
+import '@fontsource-variable/newsreader/opsz-italic.css';
+import '@fontsource/instrument-sans/400.css';
+import '@fontsource/instrument-sans/500.css';
+import '@fontsource/instrument-sans/600.css';
 import '../app/globals.css';
-createRoot(document.getElementById('root')!).render(<Home/>);
+import '../app/site/site.css';
+createRoot(document.getElementById('root')!).render(<BrowserRouter><App/></BrowserRouter>);
