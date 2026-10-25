@@ -6,9 +6,22 @@ Built for a college Continuous Assessment (full-stack web application) with **Re
 
 ![Landing page](docs/screenshots/landing.webp)
 
-| Atlas with study actions | Study Space |
+| Scroll-driven explode scene | Atlas with study actions |
 | --- | --- |
-| ![Atlas](docs/screenshots/atlas-study-actions.webp) | ![Study Space](docs/screenshots/study-space.webp) |
+| ![Explode scene](docs/screenshots/landing-explode.webp) | ![Atlas](docs/screenshots/atlas-study-actions.webp) |
+| **Study Space** | **Create account** |
+| ![Study Space](docs/screenshots/study-space.webp) | ![Register](docs/screenshots/register.webp) |
+
+## Design and motion
+
+The interface uses the Atlas's own palette (cool paper, slate ink, teal) with Newsreader and Instrument Sans. Animation is built with **GSAP 3** (ScrollTrigger and SplitText) through `@gsap/react`'s `useGSAP`, so every tween and ScrollTrigger is cleaned up when the component unmounts.
+
+- **Hero anatomy plate:** five aligned renders of the real model (muscles, skeleton, circulation, organs, skeleton and organs) swap with a teal scan-line wipe on a timer. Each layer chip shows its own progress. Hovering the figure opens an **X-ray lens** that shows the skeleton beneath the cursor, and the labels draw in and open that structure in the atlas.
+- **Headline:** split into masked lines that rise in, followed by the lede and magnetic call-to-action buttons. A soft glow follows the pointer.
+- **Take it apart:** a pinned, scroll-scrubbed scene that dissolves through six real explode renders (0–100%), with a live readout and stage list.
+- **Facts:** count up on entry. **Systems:** two marquees drift in opposite directions, speed up with scroll velocity and slow down on hover. **Study timeline:** draws itself as you scroll. **Closing statement:** lights up word by word.
+- **App pages:** route transitions, staggered reveals on Systems and About, counting statistics in Study Space, and toast and press feedback on save, edit and delete.
+- **Reduced motion:** every animation is wrapped in `gsap.matchMedia()`. With *Reduce motion* turned on, the page renders its final states with no movement.
 
 ## What it does
 
@@ -41,7 +54,7 @@ Deep links work: `/app/atlas?structure=FMA7088` opens the heart, and `/app/atlas
 
 | Layer | Stack |
 | --- | --- |
-| Frontend | React 19, TypeScript, Vite 8, React Router 7, Tailwind CSS 4, shadcn/Base UI components, Three.js |
+| Frontend | React 19, TypeScript, Vite 8, React Router 7, GSAP 3 (ScrollTrigger, SplitText), Tailwind CSS 4, shadcn/Base UI components, Three.js |
 | Backend | Node.js 22+, Express 5, Mongoose 8 |
 | Database | MongoDB (local Community Server or MongoDB Atlas) |
 | Auth | bcryptjs (12 rounds), JSON Web Token in an HttpOnly, SameSite=Lax cookie |
@@ -56,7 +69,7 @@ human-atlas-learning-studio-ca/
 │   │   ├── page.tsx           Human Atlas viewer (reused, with small hooks added)
 │   │   ├── scene.tsx          Three.js scene (reused, unchanged)
 │   │   ├── anatomy.ts         Systems and types (reused)
-│   │   └── site/              New: routes, pages, API client, auth, styles
+│   │   └── site/              New: routes, pages, API client, auth, styles, landing/ animation scenes
 │   ├── public/models/         BodyParts3D geometry (CC BY 4.0)
 │   └── vite.config.ts         Proxies /api to the Express server in development
 ├── server/
@@ -99,6 +112,10 @@ Edit `server/.env`: set `MONGODB_URI` and set `JWT_SECRET` to a long random valu
 ```sh
 node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 ```
+
+### Quick start on macOS
+
+Double-click **`start-mac.command`** in Finder. It checks Node.js, starts MongoDB (installing it with Homebrew the first time), creates `server/.env` with a random secret, installs dependencies, starts both servers and opens the browser.
 
 ### 4. Start (two terminals)
 
