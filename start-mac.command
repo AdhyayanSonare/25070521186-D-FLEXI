@@ -20,9 +20,24 @@ elif command -v brew >/dev/null; then
     brew trust mongodb/brew >/dev/null 2>&1 || brew trust --formula mongodb/brew/mongodb-community >/dev/null 2>&1 || true
     HOMEBREW_NO_AUTO_UPDATE=1 brew install mongodb/brew/mongodb-community
   fi
-  brew services start mongodb-community
-  for i in $(seq 1 30); do nc -z 127.0.0.1 27017 2>/dev/null && break; sleep 1; done
-  nc -z 127.0.0.1 27017 2>/dev/null && echo "MongoDB started" || echo "MongoDB did not start. Check: brew services list"
+  wait_mongo(){ for i in $(seq 1 ${1:-20}); do nc -z 127.0.0.1 27017 2>/dev/null && return 0; sleep 1; done; return 1; }
+  brew services start mongodb-community >/dev/null 2>&1
+  if ! wait_mongo 15; then
+    # launchctl sometimes refuses with "Bootstrap failed: 5" after a restart; re-register the service.
+    echo "Restarting the MongoDB service..."
+    brew services stop mongodb-community >/dev/null 2>&1
+    launchctl bootout gui/$(id -u)/homebrew.mxcl.mongodb-community >/dev/null 2>&1
+    brew services start mongodb-community >/dev/null 2>&1
+  fi
+  if ! wait_mongo 15; then
+    # Last resort: run mongod directly with Homebrew's config (same data folder, so saved data is kept).
+    echo "Starting mongod directly..."
+    mkdir -p .logs
+    PREFIX=$(brew --prefix)
+    rm -f "$PREFIX/var/mongodb/mongod.lock" 2>/dev/null
+    "$PREFIX/bin/mongod" --dbpath "$PREFIX/var/mongodb" --bind_ip 127.0.0.1 --port 27017 --fork --logpath "$PWD/.logs/mongod.log" >/dev/null 2>&1
+  fi
+  if wait_mongo 20; then echo "MongoDB is running on 127.0.0.1:27017"; else echo "MongoDB did not start. See .logs/mongod.log"; fi
 else
   echo "MongoDB is not running and Homebrew is not installed."
   echo "Either install MongoDB Community Server (https://www.mongodb.com/try/download/community) or put a MongoDB Atlas URI in server/.env."
