@@ -7,6 +7,9 @@ import { clearSession, issueSession, requireAuth } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rateLimit.js';
 import { config } from '../config.js';
 import { DEMO_ACCOUNTS } from '../seed.js';
+import { isDemoEmail } from '../demo.js';
+
+const DEMO_LOCKED = 'The evaluation accounts are shared, so their name and password cannot be changed. Register your own account to try this.';
 
 const router = Router();
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: Number(process.env.AUTH_RATE_LIMIT) || 20, message: 'Too many attempts. Wait a few minutes and try again.' });
@@ -68,6 +71,7 @@ router.get('/me', requireAuth, (req, res) => {
 
 // Profile: change the display name.
 router.patch('/me', requireAuth, async (req, res) => {
+  if (isDemoEmail(req.user.email)) throw new HttpError(403, DEMO_LOCKED);
   req.user.displayName = str(req.body?.displayName, { field: 'Display name', min: 2, max: 60 });
   await req.user.save();
   res.json({ user: req.user.toPublic() });
@@ -75,6 +79,7 @@ router.patch('/me', requireAuth, async (req, res) => {
 
 // Change password: requires the current password, then issues a fresh session.
 router.post('/password', requireAuth, authLimiter, async (req, res) => {
+  if (isDemoEmail(req.user.email)) throw new HttpError(403, DEMO_LOCKED);
   const current = typeof req.body?.currentPassword === 'string' ? req.body.currentPassword : '';
   const next = typeof req.body?.newPassword === 'string' ? req.body.newPassword : '';
   const user = await User.findById(req.user._id).select('+passwordHash');

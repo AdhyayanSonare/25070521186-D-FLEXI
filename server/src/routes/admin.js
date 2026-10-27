@@ -6,6 +6,7 @@ import { StudyNote } from '../models/StudyNote.js';
 import { requireAdmin, requireAuth } from '../middleware/auth.js';
 import { HttpError } from '../middleware/errors.js';
 import { objectId } from '../middleware/validate.js';
+import { isDemoEmail } from '../demo.js';
 
 const router = Router();
 router.use(requireAuth, requireAdmin);
@@ -48,6 +49,7 @@ router.delete('/users/:id', async (req, res) => {
   if (String(req.user._id) === id) throw new HttpError(400, 'You cannot delete your own account from the admin page.');
   const user = await User.findById(id);
   if (!user) throw new HttpError(404, 'User not found.');
+  if (isDemoEmail(user.email)) throw new HttpError(400, 'The evaluation accounts are protected and cannot be deleted.');
   const uid = new mongoose.Types.ObjectId(id);
   const [s, n] = await Promise.all([SavedStructure.deleteMany({ user: uid }), StudyNote.deleteMany({ user: uid }), User.deleteOne({ _id: uid })]);
   res.json({ ok: true, id, removedSaved: s.deletedCount, removedNotes: n.deletedCount });

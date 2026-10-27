@@ -442,3 +442,10 @@ html.atlas-mode .toasts{bottom:auto;top:92px}
 .pw-form .btn{align-self:flex-start}
 @media (max-width:1000px){.profile-grid{grid-template-columns:1fr}}
 @media (max-width:560px){.inline-form{flex-direction:column;align-items:stretch}}
+
+.protected-tag{display:inline-block;padding:3px 9px;border-radius:999px;background:var(--paper);color:var(--faint);font-size:12px}
+.locked-note{padding:14px 16px;border-radius:14px;background:#2f6f6a0f;border:1px solid #2f6f6a33;font-size:14px;color:var(--muted);line-height:1.55}
+.locked-note b{color:var(--ink)}
+.site .locked-note a{color:var(--teal);font-weight:500}
+fieldset.bare{border:0;margin:0;padding:0;min-width:0;display:contents}
+fieldset.bare:disabled input{background:var(--paper);color:var(--faint)}

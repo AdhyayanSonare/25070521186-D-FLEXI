@@ -18,7 +18,7 @@ export default function Profile(){
  useReveal(page,'.profile-card, .profile-panel');
  useCountUp(page,'.pstat-num',[counts?.saved,counts?.notes]);
  if(!user)return null;
- const isAdmin=user.role==='admin';
+ const isAdmin=user.role==='admin',locked=!!user.demo;
  const since=new Date(user.createdAt).toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'});
 
  const saveName=async(e:FormEvent)=>{
@@ -66,19 +66,20 @@ export default function Profile(){
    </section>
 
    <div className="profile-forms">
+    {locked&&<div className="locked-note" role="note"><b>Shared evaluation account.</b> Its name and password stay fixed so everyone can sign in with the published details. <Link to="/register">Register your own account</Link> to try editing your profile and changing your password.</div>}
     <section className="profile-panel" aria-labelledby="name-title">
      <h2 id="name-title"><UserRound size={17} aria-hidden="true"/>Display name</h2>
      <p className="panel-help">Shown in the navigation and on the admin dashboard.</p>
-     <form onSubmit={saveName} className="inline-form" noValidate>
+     <form onSubmit={saveName} className="inline-form" noValidate aria-disabled={locked}><fieldset disabled={locked} className="bare">
       <div className={`field ${nameErr?'has-error':''}`}><label htmlFor="profile-name" className="sr-only">Display name</label><input id="profile-name" value={name} onChange={e=>setName(e.target.value)} maxLength={60} autoComplete="name" aria-invalid={!!nameErr}/>{nameErr&&<p className="field-error">{nameErr}</p>}</div>
       <button type="submit" className="btn btn-dark" disabled={nameBusy||name.trim()===user.displayName}>{nameBusy?'Saving…':'Save name'}</button>
-     </form>
+     </fieldset></form>
     </section>
 
     <section className="profile-panel" aria-labelledby="pw-title">
      <h2 id="pw-title"><KeyRound size={17} aria-hidden="true"/>Change password</h2>
      <p className="panel-help">Passwords are stored only as bcrypt hashes. Changing yours signs this browser in again with a fresh session.</p>
-     <form onSubmit={savePw} className="pw-form" noValidate>
+     <form onSubmit={savePw} className="pw-form" noValidate><fieldset disabled={locked} className="bare pw-fields">
       {pwErr.form&&<div className="form-alert" role="alert">{pwErr.form}</div>}
       {([['current','Current password','current-password'],['next','New password','new-password'],['confirm','Confirm new password','new-password']] as const).map(([k,label,ac])=>
        <div key={k} className={`field ${pwErr[k]?'has-error':''}`}>
@@ -87,7 +88,7 @@ export default function Profile(){
         {pwErr[k]&&<p className="field-error">{pwErr[k]}</p>}
        </div>)}
       <button type="submit" className="btn btn-dark" disabled={pwBusy}>{pwBusy?'Changing…':'Change password'}</button>
-     </form>
+     </fieldset></form>
     </section>
    </div>
   </div>

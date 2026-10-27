@@ -3,7 +3,6 @@ import { config } from './config.js';
 import { connectDatabase } from './db.js';
 import { createApp } from './app.js';
 
-mongoose.set('bufferCommands', false);
 
 const app = createApp();
 const server = app.listen(config.port, () => {

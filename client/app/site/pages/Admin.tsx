@@ -85,7 +85,7 @@ export default function Admin(){
        <td>{fmt(u.createdAt)}</td>
        <td className="num">{u.saved}</td>
        <td className="num">{u.notes}</td>
-       <td className="actions">{u.id===user?.id?null:confirm===u.id?<span className="confirm-row"><span>Delete this user and their data?</span><button type="button" className="study-link" onClick={()=>setConfirm(null)}>Cancel</button><button type="button" className="btn btn-danger btn-sm" disabled={busy===u.id} onClick={()=>remove(u)}>{busy===u.id?'Deleting…':'Delete'}</button></span>
+       <td className="actions">{u.id===user?.id?null:u.demo?<span className="protected-tag" title="Evaluation accounts cannot be deleted">Protected</span>:confirm===u.id?<span className="confirm-row"><span>Delete this user and their data?</span><button type="button" className="study-link" onClick={()=>setConfirm(null)}>Cancel</button><button type="button" className="btn btn-danger btn-sm" disabled={busy===u.id} onClick={()=>remove(u)}>{busy===u.id?'Deleting…':'Delete'}</button></span>
         :<button type="button" className="icon-btn danger" onClick={()=>setConfirm(u.id)} aria-label={`Delete ${u.displayName}`} title="Delete user"><Trash2 size={16}/></button>}</td>
       </tr>)}</tbody>
      </table>

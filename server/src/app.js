@@ -15,6 +15,8 @@ import adminRoutes from './routes/admin.js';
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
+  // Behind Vercel's proxy: use the real client IP for rate limiting.
+  if (process.env.VERCEL) app.set('trust proxy', 1);
   app.use((req, res, next) => {
     res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'X-Frame-Options': 'SAMEORIGIN' });
     // The Vite dev server proxies /api, so CORS is only a fallback for direct cross-origin calls in development.

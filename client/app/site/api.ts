@@ -2,7 +2,7 @@
 export class ApiError extends Error {
  constructor(public status:number,message:string,public details?:Record<string,unknown>){super(message);}
 }
-export interface User {id:string;displayName:string;email:string;role:'user'|'admin';createdAt:string}
+export interface User {id:string;displayName:string;email:string;role:'user'|'admin';demo?:boolean;createdAt:string}
 export interface DemoAccount {label:string;email:string;password:string;role:'user'|'admin'}
 export interface AdminStats {users:number;admins:number;saved:number;notes:number;notesThisWeek:number;usersThisWeek:number;topStructures:{structureId:string;name:string;system:string;count:number}[]}
 export interface AdminUser extends User {saved:number;notes:number}

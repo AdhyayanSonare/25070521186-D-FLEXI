@@ -208,3 +208,16 @@ test('profile: rename and change password with the current password', async () =
   assert.equal((await fresh('POST', '/auth/login', { email: 'carol@example.com', password: 'femur4567' })).status, 200);
   assert.equal((await client()('PATCH', '/auth/me', { displayName: 'Anon' })).status, 401);
 });
+
+test('evaluation accounts cannot be renamed, re-passworded or deleted', async () => {
+  const riya = client();
+  const login = await riya('POST', '/auth/login', { email: 'riya.sharma@humanatlas.test', password: 'Student@Atlas2026' });
+  assert.equal(login.body.user.demo, true);
+  assert.equal((await riya('PATCH', '/auth/me', { displayName: 'Hacked' })).status, 403);
+  assert.equal((await riya('POST', '/auth/password', { currentPassword: 'Student@Atlas2026', newPassword: 'changed123' })).status, 403);
+  const admin = client();
+  await admin('POST', '/auth/login', { email: 'admin@humanatlas.test', password: 'Admin@Atlas2026' });
+  assert.equal((await admin('DELETE', `/admin/users/${login.body.user.id}`)).status, 400);
+  assert.equal((await client()('POST', '/auth/login', { email: 'riya.sharma@humanatlas.test', password: 'Student@Atlas2026' })).status, 200);
+});
+

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { isDemoEmail } from '../demo.js';
 
 const userSchema = new mongoose.Schema(
   {
@@ -11,7 +12,7 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.methods.toPublic = function toPublic() {
-  return { id: this._id.toString(), displayName: this.displayName, email: this.email, role: this.role || 'user', createdAt: this.createdAt };
+  return { id: this._id.toString(), displayName: this.displayName, email: this.email, role: this.role || 'user', demo: isDemoEmail(this.email), createdAt: this.createdAt };
 };
 
 export const User = mongoose.model('User', userSchema);
