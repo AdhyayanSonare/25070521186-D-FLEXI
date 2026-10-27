@@ -5,7 +5,8 @@ const isProd = process.env.NODE_ENV === 'production';
 export const config = {
   isProd,
   port: Number(process.env.PORT) || 5050,
-  mongoUri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017',
+  // MONGODB_URI is set by Vercel's MongoDB Atlas integration; the other names cover other prefixes.
+  mongoUri: process.env.MONGODB_URI || process.env.MONGODB_URL || process.env.STORAGE_URL || 'mongodb://127.0.0.1:27017',
   mongoDb: process.env.MONGODB_DB || 'human_atlas_studio',
   jwtSecret: process.env.JWT_SECRET || '',
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:3016',
