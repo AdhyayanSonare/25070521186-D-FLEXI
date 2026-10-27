@@ -7,6 +7,7 @@
 | **PRN** | 25070521186 |
 | **Institute** | Symbiosis Institute of Technology, Nagpur |
 | **Assessment** | Continuous Assessment 03: Full-stack web application |
+| **Live site** | https://human-atlas-learning-studio-ca.vercel.app |
 | **Repository** | https://github.com/AdhyayanSonare/human-atlas-learning-studio-ca |
 | **Stack** | React 19 (Vite) · Node.js + Express 5 · MongoDB (Mongoose) · JWT + bcrypt · PubMed API |
 
