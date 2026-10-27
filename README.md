@@ -8,9 +8,23 @@
 
 A full-stack anatomy learning platform built around a real 3D model of **2,234 anatomical parts**: private study spaces, notes, PubMed research, role-based authentication and an admin dashboard. It has an animated interface that runs smoothly on both laptops and phones.
 
+## 🌐 Live site → [human-atlas-learning-studio-ca.vercel.app](https://human-atlas-learning-studio-ca.vercel.app)
+
 <p>
-  <a href="https://human-atlas-learning-studio-ca.vercel.app"><img src="https://img.shields.io/badge/▶%20Live%20demo-human--atlas--learning--studio--ca.vercel.app-2f6f6a?style=for-the-badge" alt="Live demo"/></a>
+  <a href="https://human-atlas-learning-studio-ca.vercel.app"><img src="https://img.shields.io/badge/▶%20Open%20the%20live%20site-human--atlas--learning--studio--ca.vercel.app-2f6f6a?style=for-the-badge" alt="Open the live site"/></a>
+  &nbsp;
+  <a href="https://human-atlas-learning-studio-ca.vercel.app/login"><img src="https://img.shields.io/badge/🔑%20Sign%20in-evaluation%20accounts%20below-263b48?style=for-the-badge" alt="Sign in"/></a>
 </p>
+
+<table>
+<tr><td align="center">
+
+**https://human-atlas-learning-studio-ca.vercel.app**
+
+<sub>Hosted on Vercel · Admin: <code>admin@humanatlas.test</code> / <code>Admin@Atlas2026</code> · Student: <code>riya.sharma@humanatlas.test</code> / <code>Student@Atlas2026</code></sub>
+
+</td></tr>
+</table>
 
 <p>
   <img src="https://img.shields.io/badge/React-19-263b48?logo=react&logoColor=61DAFB" alt="React 19"/>
@@ -25,7 +39,7 @@ A full-stack anatomy learning platform built around a real 3D model of **2,234 a
   <img src="https://img.shields.io/badge/Tests-14%20passing-458a85" alt="Tests"/>
 </p>
 
-**[Live demo](https://human-atlas-learning-studio-ca.vercel.app)** · **[Evaluation accounts](#-evaluation-accounts)** · **[Rubric](#-ca-rubric-checklist)** · **[Run locally](#-run-it-locally)** · **[Deploy](#-deployment-vercel--mongodb-atlas)** · **[API](#-rest-api)**
+**[Live site](https://human-atlas-learning-studio-ca.vercel.app)** · **[Evaluation accounts](#-evaluation-accounts)** · **[Rubric](#-ca-rubric-checklist)** · **[Run locally](#-run-it-locally)** · **[Deploy](#-deployment-vercel--mongodb-atlas)** · **[API](#-rest-api)**
 
 </div>
 
@@ -33,7 +47,7 @@ A full-stack anatomy learning platform built around a real 3D model of **2,234 a
 
 ## 🔑 Evaluation accounts
 
-Sign in at **[/login](https://human-atlas-learning-studio-ca.vercel.app/login)**, on the live site or locally.
+> **Live site:** https://human-atlas-learning-studio-ca.vercel.app · sign in at **[/login](https://human-atlas-learning-studio-ca.vercel.app/login)** (works the same locally).
 
 | | Role | Name | Email | Password | Start here |
 | :-: | --- | --- | --- | --- | --- |
