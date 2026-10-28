@@ -377,17 +377,10 @@ human-atlas-learning-studio-ca/
 
 ---
 
-## 🧩 Reused and built
-
-**Reused:** the 3D viewer from [Human Atlas](https://github.com/ashemag/human-atlas) by ashemag (MIT). That covers the Three.js renderer, the model files, system toggles, search, selection, isolation and the exploded view. The first commit in this repository is that project unmodified, so the history shows exactly what was added.
-
-**Built for this CA:** everything else. That includes the animated landing page, routing, authentication with roles, Systems, Study Space, Profile, Admin and About, the Save/Note/Research actions in the Atlas, the Express + MongoDB backend, the PubMed integration, the evaluation accounts, the Vercel deployment, the tests and this documentation. The formal report is in [`docs/CA-SUBMISSION.md`](docs/CA-SUBMISSION.md).
-
----
 
 ## 📜 Credits and licences
 
-- **Viewer code:** [Human Atlas](https://github.com/ashemag/human-atlas) © ashemag, MIT. Additions © Adhyayan Sonare, MIT ([`LICENSE`](LICENSE)).
+© Adhyayan Sonare, MIT ([`LICENSE`](LICENSE)).
 - **Anatomy data:** **BodyParts3D**, © The Database Center for Life Science, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Mitsuhashi et al. (2009), *Nucleic Acids Research*. See [`client/public/ATTRIBUTION.md`](client/public/ATTRIBUTION.md).
 - **Research data:** [NCBI PubMed E-utilities](https://www.ncbi.nlm.nih.gov/books/NBK25497/).
 - **Fonts:** Newsreader and Instrument Sans (SIL Open Font License) via Fontsource.
